@@ -2,7 +2,7 @@ import rospy, pickle, time
 import robot
 from geometry_msgs.msg import Pose
 import numpy as np
-from solve_system import *
+from rigid_transformation import *
 import PyKDL
 import cv2
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ def move_to(pt):
 
 
 def load_images():
-    return cv2.imread('imagesf/left0.jpg'), cv2.imread('imagesf/right0.jpg')
+    return cv2.imread('images/left0.jpg'), cv2.imread('images/right0.jpg')
 
 def load_camera_points():
     lst = []
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     pt = np.ones(4)
     pt[:3] = cpoint
     pred = cmat * np.matrix(pt).T
-    move_to(pred)
+    # move_to(pred)
     time.sleep(2)
 
     left, right = load_images()

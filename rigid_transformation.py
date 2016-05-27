@@ -202,7 +202,7 @@ if __name__ == '__main__':
     cmat = solve_for_camera_matrix()
     print cmat
 
-    write_mat_to_file("camera_matrix.p", cmat)
+    # write_mat_to_file("camera_matrix.p", cmat)
 
     plot_camera_points(camera_points)
     plot_training_error()
