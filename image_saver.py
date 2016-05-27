@@ -49,7 +49,7 @@ class ImageSaver:
         if self.info['r']:
             return
         self.info['r'] = msg
-        f = open("calibrationd_data/camera_right.p", "w")
+        f = open("calibration_data/camera_right.p", "w")
         pickle.dump(msg, f)
         f.close()
 
