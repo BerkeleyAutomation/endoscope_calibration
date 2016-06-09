@@ -11,6 +11,10 @@ import pickle
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped
 
+"""
+Script that saves images from the endoscope camera.
+"""
+
 class ImageSaver:
 
     def __init__(self):
