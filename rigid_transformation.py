@@ -79,9 +79,8 @@ def solve_for_camera_matrix():
     """
     Returns Camera -> Robot frame matrix
     """
-    good_pts = get_good_indices()
-    robot_points = load_robot_points()[good_pts,:]
-    camera_points = load_camera_points()[good_pts,:]
+    robot_points = load_robot_points()
+    camera_points = load_camera_points()
     camera_mean = camera_points.mean(axis=0)
     robot_mean = robot_points.mean(axis=0)
     for i in range(robot_points.shape[0]):
@@ -168,12 +167,12 @@ def plot_camera_points(camera_points):
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(np.array(camera_points[:,0]), np.array(camera_points[:,1]), np.array(camera_points[:,2]),c='r')
 
-    ax.set_xlim3d(-0.1, 0)
+    ax.set_xlim3d(-0.05, 0.05)
     ax.set_ylim3d(-0.05, 0.05)
-    ax.set_zlim3d(0.1,0.2)
+    ax.set_zlim3d(0.1, 0.2)
     plt.show()
 
-def plot_training_error():
+def plot_training_error(R, t):
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
     
@@ -183,16 +182,14 @@ def plot_training_error():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(np.array(robot_points[:,0]), np.array(robot_points[:,1]), np.array(robot_points[:,2]),c='r')
-    ax.set_xlim3d(0, 0.1)
-    ax.set_ylim3d(-0.05,0.05)
-    ax.set_zlim3d(-0.192,-0.092)
-
-    t = np.ones((4, 30))
-    t[:3,:] = camera_points.T
-    rnew = (cmat * t).T
 
     ax.scatter(np.array(rnew[:,0]), np.array(rnew[:,1]), np.array(rnew[:,2]))
     plt.show()
+
+def skew(vector):
+    return np.matrix([[0, -vector[2], vector[1]], 
+                     [vector[2], 0, -vector[0]], 
+                     [-vector[1], vector[0], 0]])
 
 if __name__ == '__main__':
 
@@ -200,9 +197,54 @@ if __name__ == '__main__':
     robot_points = load_robot_points()
 
     cmat = solve_for_camera_matrix()
+    write_mat_to_file("camera_matrix.p", cmat)
+
     print cmat
 
-    # write_mat_to_file("camera_matrix.p", cmat)
+    # plot_camera_points(camera_points)
 
-    plot_camera_points(camera_points)
-    plot_training_error()
+    import sys
+    sys.exit()
+
+    camera_plane = least_squares_plane_normal(camera_points)
+    robot_plane = least_squares_plane_normal(robot_points)
+
+    camera_center_point = camera_points[12]
+    robot_center_point = robot_points[12]
+
+    camera_normal = np.array([camera_plane[0,0], camera_plane[0,1], -1])
+    camera_normal /= np.linalg.norm(camera_normal)
+    robot_normal = -np.array([robot_plane[0,0], robot_plane[0,1], -1])
+    robot_normal /= np.linalg.norm(robot_normal)
+
+    v = np.cross(camera_normal, robot_normal)
+    s = np.linalg.norm(v)
+    c = np.dot(camera_normal, robot_normal)
+
+    R = skew(v) + skew(v) * skew(v) * (1 - c) / s**2 + np.identity(3)
+    print 'R', R
+
+    translation = robot_points[12] - (R * camera_points[12].T).T
+    print 'translation', translation
+
+    print 'camera point', camera_points[12]
+    print 'predicted point in robot frame', (R * camera_points[12].T).T + translation
+    print 'robot point', robot_points[12]
+
+    cmat = np.hstack((R,translation.T))
+
+    print cmat
+
+    write_mat_to_file("camera_matrix.p", cmat)
+
+    # cmat = solve_for_camera_matrix()
+    # print cmat
+
+
+
+
+    # plot_camera_points(camera_points)
+    # plot_training_error()
+    # a = np.asarray(cv2.imread("images/left0.jpg"))
+    # plt.imshow(a)
+    # plt.show()

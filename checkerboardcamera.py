@@ -105,18 +105,18 @@ class ChessDetector:
         print "processing image"
 
         # Code for 2D pixels in rectified image -> 3D point in Camera Frame. Uncomment to use
-        # left_corners = [[598.66,464.87]]
-        # right_corners = [[523,469]]
-        # pts3d = self.get_points_3d(left_corners, right_corners)
-        # self.pts = [(p.point.x, p.point.y, p.point.z) for p in pts3d]
-        # print self.pts
-        # return
+        left_corners = [[439.75, 612.84]]
+        right_corners = [[335.18,614.20]]
+        pts3d = self.get_points_3d(left_corners, right_corners)
+        self.pts = [(p.point.x, p.point.y, p.point.z) for p in pts3d]
+        print self.pts
+        return
 
 
         left_gray = cv2.cvtColor(self.left_image,cv2.COLOR_BGR2GRAY)
         right_gray = cv2.cvtColor(self.right_image,cv2.COLOR_BGR2GRAY)
-        ret, left_corners = cv2.findChessboardCorners(left_gray, (6,5), flags=1)
-        ret, right_corners = cv2.findChessboardCorners(right_gray, (6,5), flags=1)
+        ret, left_corners = cv2.findChessboardCorners(left_gray, (5,5), flags=1)
+        ret, right_corners = cv2.findChessboardCorners(right_gray, (5,5), flags=1)
         print left_corners
         print right_corners
         print len(left_corners), len(right_corners)
