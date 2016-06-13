@@ -101,6 +101,27 @@ def solve_for_camera_matrix():
     t = robot_mean.T - R * camera_mean.T
     return np.concatenate((R, t), axis=1)
 
+def solve_for_rigid_transformation(inpts, outpts):
+    """
+    Takes in two sets of corresponding points, returns the rigid transformation matrix from the first to the second.
+    """
+
+    inpt_mean = inpts.mean(axis=0)
+    outpt_mean = outpts.mean(axis=0)
+    for i in range(outpts.shape[0]):
+        outpts[i,:] -= outpt_mean
+        inpts[i,:] -= inpt_mean
+    X = inpts.T
+    Y = outpts.T
+    covariance = X * Y.T
+    U, Sigma, V = np.linalg.svd(covariance)
+    V = V.T
+    idmatrix = np.identity(3)
+    idmatrix[2, 2] = np.linalg.det(V * U.T)
+    R = V * idmatrix * U.T
+    t = outpt_mean.T - R * inpt_mean.T
+    return np.concatenate((R, t), axis=1)
+
 
 
 def solve_for_robot_matrix():
