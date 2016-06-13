@@ -7,6 +7,9 @@ import PyKDL
 import cv2
 import matplotlib.pyplot as plt
 
+"""
+Test script for moving the robot/verifying camera calibration accuracy.
+"""
 
 def move_to(pt):
     pos = [pt[0], pt[1], pt[2], 0.904224639361, 0.153280574192, -0.180361018743, -0.355461348203]

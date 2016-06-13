@@ -15,6 +15,10 @@ import sys
 import time
 from math import *
 
+"""
+This script contains utilities that are used to find the rigid transformation between coordinate frames.
+"""
+
 def load_robot_points():
     lst = []
     f3 = open("calibration_data/psm1_calibration.p", "rb")

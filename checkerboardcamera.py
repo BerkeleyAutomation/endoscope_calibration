@@ -16,6 +16,10 @@ import sys
 
 USE_SAVED_IMAGES = False
 
+"""
+This script detects chessboard corners from the endoscope cameras. It writes the points to calibration_data/endoscope_points.
+"""
+
 
 def convertStereo(u, v, disparity, info):
     """

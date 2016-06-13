@@ -8,6 +8,11 @@ import numpy as np
 import sys
 
 
+"""
+This script contains functions and a GUI used for collecting points in robot frame (for PSM1). It dumps points to calibration_data/psm1_calibration.
+"""
+
+
 def startCallback():
     global prs
     process = multiprocessing.Process(target = start_listening)
