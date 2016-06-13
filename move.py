@@ -70,4 +70,4 @@ if __name__ == '__main__':
     pred = cmat * np.matrix(pt).T
 
     print pred
-    move_to(pred)
+    # move_to(pred)

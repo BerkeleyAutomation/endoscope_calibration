@@ -109,6 +109,13 @@ def solve_for_robot_matrix():
     """
     robot_points = load_robot_points()
     camera_points = load_camera_points()
+    cmat = solve_for_camera_matrix()
+    rot = np.linalg.inv(cmat[:3,:3])
+    trans = - cmat[:,3]
+    rmat = np.zeros((3, 4))
+    rmat[:3,:3] = rot
+    rmat[:,3] = trans.squeeze()
+    return rmat
     #needs to be implemented
 
 def write_mat_to_file(filename, matrix):
@@ -201,9 +208,12 @@ if __name__ == '__main__':
     robot_points = load_robot_points()
 
     cmat = solve_for_camera_matrix()
+    rmat = solve_for_robot_matrix()
     write_mat_to_file("camera_matrix.p", cmat)
+    write_mat_to_file("robot_matrix.p", rmat)
 
     print cmat
+    print rmat
 
     # plot_camera_points(camera_points)
 
