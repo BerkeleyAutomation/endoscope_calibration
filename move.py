@@ -6,6 +6,7 @@ from rigid_transformation import *
 import PyKDL
 import cv2
 import matplotlib.pyplot as plt
+import sys
 
 """
 Test script for moving the robot/verifying camera calibration accuracy.
@@ -16,6 +17,7 @@ def move_to(pt):
     rotation = PyKDL.Rotation.Quaternion(pos[3], pos[4], pos[5], pos[6])
     position = PyKDL.Vector(pos[0], pos[1], pos[2])
     fr = PyKDL.Frame(rotation, position)
+    # psm1.open_gripper(-30)
     psm1.move_cartesian_frame(fr)
  
 def load_images():
@@ -34,6 +36,11 @@ def load_camera_points():
             f3.close()
             return np.matrix(lst[0])
 
+def home_robot():
+    pos = [0.023580864372, 0.00699340564912, -0.0485527311586]
+    move_to(pos)
+    time.sleep(2)
+
 
 if __name__ == '__main__':
 
@@ -42,14 +49,13 @@ if __name__ == '__main__':
     # plt.show()
     # plt.imshow(np.asarray(right))
     # plt.show()
-    # import sys
     # sys.exit()
 
 
 
     # Initialize everything    
     psm1 = robot.robot("PSM1")
-    psm1.close_gripper()
+    # psm1.close_gripper()
 
     f3 = open("calibration_data/camera_matrix.p", "rb")
     cmat = pickle.load(f3)
@@ -57,17 +63,31 @@ if __name__ == '__main__':
     cpts = load_camera_points()
 
     #Camera 3d Point
-    cpoint = (-0.028559456491671593, -0.020578925928518597, 0.12828773493509008) # top, second from left
-    cpoint = (-0.038262278312046948, -0.020344382769890135, 0.1234131429583306) # top left
-    cpoint = (-0.039982414769834149, 0.00078298402327594879, 0.12663153868222243) # third row, left
-
-    cpoint = cpts[20]
+    cpoint = (-0.018274445810247588, -0.0028771206338445974, 0.088643687702081211)
+    cpoint = (0.0027797521195478464, 0.010301199936929009, 0.12342119489234789)
+    cpoint = (-0.0024282700696836501, -0.01000298049768312, 0.13110752475247525)
+    # cpoint = cpts[12]
+    cpoint = (-0.0110894, 0.0184677, 0.170577595)
+    print cpts
     print "camera point", cpoint
-
-    #Rigid transformation -> Move to point in Robot Frame
     pt = np.ones(4)
     pt[:3] = cpoint
     pred = cmat * np.matrix(pt).T
-
     print pred
-    move_to(pred)
+    # move_to(pred)
+    sys.exit()
+    #Rigid transformation -> Move to point in Robot Frame
+
+
+    for i in range(25):
+        home_robot()
+        cpoint = cpts[i]
+        pt = np.ones(4)
+        pt[:3] = cpoint
+        pred = cmat * np.matrix(pt).T
+        print pred
+        move_to(pred)
+        time.sleep(2)
+
+    # print pred
+    # move_to(pred)

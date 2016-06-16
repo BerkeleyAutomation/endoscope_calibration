@@ -393,11 +393,11 @@ class robot:
             return False
         self.set_jaw_position.publish(-10.0 * math.pi / 180.0);
 
-    def open_gripper(self):
+    def open_gripper(self, angle):
         "Open the arm gripper"
         if (not self.__dvrk_set_state('DVRK_POSITION_GOAL_CARTESIAN')):
             return False
-        self.set_jaw_position.publish(80.0 * math.pi / 180.0);
+        self.set_jaw_position.publish(angle * math.pi / 180.0);
 
     def delta_move_cartesian(self, delta_input, interpolate=True):
         """Incremental translation in cartesian space.

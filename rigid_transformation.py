@@ -204,8 +204,7 @@ if __name__ == '__main__':
     write_mat_to_file("camera_matrix.p", cmat)
 
     print cmat
-
-    # plot_camera_points(camera_points)
+    plot_camera_points(camera_points)
 
     import sys
     sys.exit()

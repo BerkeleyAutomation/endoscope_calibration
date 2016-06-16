@@ -109,8 +109,8 @@ class ChessDetector:
         print "processing image"
 
         # Code for 2D pixels in rectified image -> 3D point in Camera Frame. Uncomment to use
-        left_corners = [[439.75, 612.84]]
-        right_corners = [[335.18,614.20]]
+        left_corners = [(1077, 436)]
+        right_corners = [(976, 439)]
         pts3d = self.get_points_3d(left_corners, right_corners)
         self.pts = [(p.point.x, p.point.y, p.point.z) for p in pts3d]
         print self.pts
