@@ -101,6 +101,27 @@ def solve_for_camera_matrix():
     t = robot_mean.T - R * camera_mean.T
     return np.concatenate((R, t), axis=1)
 
+def solve_for_rigid_transformation(inpts, outpts):
+    """
+    Takes in two sets of corresponding points, returns the rigid transformation matrix from the first to the second.
+    """
+
+    inpt_mean = inpts.mean(axis=0)
+    outpt_mean = outpts.mean(axis=0)
+    for i in range(outpts.shape[0]):
+        outpts[i,:] -= outpt_mean
+        inpts[i,:] -= inpt_mean
+    X = inpts.T
+    Y = outpts.T
+    covariance = X * Y.T
+    U, Sigma, V = np.linalg.svd(covariance)
+    V = V.T
+    idmatrix = np.identity(3)
+    idmatrix[2, 2] = np.linalg.det(V * U.T)
+    R = V * idmatrix * U.T
+    t = outpt_mean.T - R * inpt_mean.T
+    return np.concatenate((R, t), axis=1)
+
 
 
 def solve_for_robot_matrix():
@@ -109,6 +130,13 @@ def solve_for_robot_matrix():
     """
     robot_points = load_robot_points()
     camera_points = load_camera_points()
+    cmat = solve_for_camera_matrix()
+    rot = np.linalg.inv(cmat[:3,:3])
+    trans = - cmat[:,3]
+    rmat = np.zeros((3, 4))
+    rmat[:3,:3] = rot
+    rmat[:,3] = trans.squeeze()
+    return rmat
     #needs to be implemented
 
 def write_mat_to_file(filename, matrix):
@@ -201,11 +229,11 @@ if __name__ == '__main__':
     robot_points = load_robot_points()
 
     cmat = solve_for_camera_matrix()
+    rmat = solve_for_robot_matrix()
     write_mat_to_file("camera_matrix.p", cmat)
+    write_mat_to_file("robot_matrix.p", rmat)
 
     print cmat
-    plot_camera_points(camera_points)
-
     import sys
     sys.exit()
 

@@ -75,9 +75,8 @@ if __name__ == '__main__':
     pred = cmat * np.matrix(pt).T
     print pred
     # move_to(pred)
+    import sys
     sys.exit()
-    #Rigid transformation -> Move to point in Robot Frame
-
 
     for i in range(25):
         home_robot()
@@ -91,3 +90,4 @@ if __name__ == '__main__':
 
     # print pred
     # move_to(pred)
+
