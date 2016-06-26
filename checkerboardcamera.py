@@ -37,7 +37,7 @@ def convertStereo(u, v, disparity, info):
 
 class ChessDetector:
 
-    def __init__(self):
+    def __init__(self, AD=False):
         self.bridge = cv_bridge.CvBridge()
         self.left_image = None
         self.right_image = None
@@ -55,6 +55,16 @@ class ChessDetector:
                          CameraInfo, self.left_info_callback)
         rospy.Subscriber("/endoscope/right/camera_info",
                          CameraInfo, self.right_info_callback)
+
+        if AD:
+            self.ADleft_image = None
+            self.ADright_image = None
+            # image subscribers
+            rospy.Subscriber("/AD/left/image_rect_color", Image,
+                             self.ADleft_image_callback, queue_size=1)
+            rospy.Subscriber("/AD/right/image_rect_color", Image,
+                             self.ADright_image_callback, queue_size=1)
+
 
     def left_info_callback(self, msg):
         if self.info['l']:
@@ -85,6 +95,25 @@ class ChessDetector:
             self.left_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
             scipy.misc.imsave('calibration_data/left_checkerboard.jpg', self.left_image)
         if self.right_image != None:
+            self.process_image()
+
+    def ADright_image_callback(self, msg):
+        if rospy.is_shutdown():
+            return
+        if USE_SAVED_IMAGES:
+            self.ADright_image = cv2.imread('right_checkerboard.jpg')
+        else:
+            self.ADright_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+
+
+    def ADleft_image_callback(self, msg):
+        if rospy.is_shutdown():
+            return
+        if USE_SAVED_IMAGES:
+            self.ADleft_image = cv2.imread('left_checkerboard.jpg')
+        else:
+            self.ADleft_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        if self.ADright_image != None:
             self.process_image()
     
     def get_points_3d(self, left_points, right_points):
@@ -135,8 +164,27 @@ class ChessDetector:
         f.close()
 
 
+    def process_image(self):
+        print "processing image"
+        left_gray = cv2.cvtColor(self.ADleft_image,cv2.COLOR_BGR2GRAY)
+        right_gray = cv2.cvtColor(self.ADright_image,cv2.COLOR_BGR2GRAY)
+        ret, left_corners = cv2.findChessboardCorners(left_gray, (5,5), flags=1)
+        ret, right_corners = cv2.findChessboardCorners(right_gray, (5,5), flags=1)
+        print left_corners
+        print right_corners
+        print len(left_corners), len(right_corners)
+        left, right, = [], []
+        for i in range(len(left_corners)):
+            left.append([left_corners[i][0][0], left_corners[i][0][1]])
+            right.append([right_corners[i][0][0], right_corners[i][0][1]])
+        pts3d = self.get_points_3d(left, right)
+        self.pts = [(p.point.x, p.point.y, p.point.z) for p in pts3d]
+        f = open('calibration_data/AD_points.p', 'w')
+        pickle.dump(self.pts, f)
+        f.close()
+
 
 if __name__ == "__main__":
     rospy.init_node('circle_detector')
-    a = ChessDetector()
+    a = ChessDetector(False)
     rospy.spin()
