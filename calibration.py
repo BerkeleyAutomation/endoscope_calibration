@@ -1,4 +1,3 @@
-import cv2
 import Tkinter
 from Tkinter import *
 import rospy, pickle, time
