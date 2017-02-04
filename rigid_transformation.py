@@ -234,48 +234,4 @@ if __name__ == '__main__':
     write_mat_to_file("robot_matrix.p", rmat)
 
     print cmat
-    import sys
-    sys.exit()
 
-    camera_plane = least_squares_plane_normal(camera_points)
-    robot_plane = least_squares_plane_normal(robot_points)
-
-    camera_center_point = camera_points[12]
-    robot_center_point = robot_points[12]
-
-    camera_normal = np.array([camera_plane[0,0], camera_plane[0,1], -1])
-    camera_normal /= np.linalg.norm(camera_normal)
-    robot_normal = -np.array([robot_plane[0,0], robot_plane[0,1], -1])
-    robot_normal /= np.linalg.norm(robot_normal)
-
-    v = np.cross(camera_normal, robot_normal)
-    s = np.linalg.norm(v)
-    c = np.dot(camera_normal, robot_normal)
-
-    R = skew(v) + skew(v) * skew(v) * (1 - c) / s**2 + np.identity(3)
-    print 'R', R
-
-    translation = robot_points[12] - (R * camera_points[12].T).T
-    print 'translation', translation
-
-    print 'camera point', camera_points[12]
-    print 'predicted point in robot frame', (R * camera_points[12].T).T + translation
-    print 'robot point', robot_points[12]
-
-    cmat = np.hstack((R,translation.T))
-
-    print cmat
-
-    write_mat_to_file("camera_matrix.p", cmat)
-
-    # cmat = solve_for_camera_matrix()
-    # print cmat
-
-
-
-
-    # plot_camera_points(camera_points)
-    # plot_training_error()
-    # a = np.asarray(cv2.imread("images/left0.jpg"))
-    # plt.imshow(a)
-    # plt.show()
